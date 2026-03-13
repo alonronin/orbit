@@ -63,13 +63,13 @@ export const RepoGrid = memo(function RepoGrid({
     (repo: RepoWithLabels) => {
       onRepoClick(repo)
     },
-    [onRepoClick],
+    [onRepoClick]
   )
 
   // Initial load from IndexedDB
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 px-4 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 px-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 9 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
@@ -106,7 +106,8 @@ export const RepoGrid = memo(function RepoGrid({
           </EmptyMedia>
           <EmptyTitle>Sync failed</EmptyTitle>
           <EmptyDescription>
-            {syncStatus.error ?? "Could not fetch your starred repos. Try again."}
+            {syncStatus.error ??
+              "Could not fetch your starred repos. Try again."}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -116,7 +117,7 @@ export const RepoGrid = memo(function RepoGrid({
   // No results from search/filter
   if (repos.length === 0 && hasSearchQuery) {
     return (
-<Empty className="min-h-[40vh]">
+      <Empty className="min-h-[40vh]">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <SearchIcon />
@@ -148,10 +149,7 @@ export const RepoGrid = memo(function RepoGrid({
   }
 
   return (
-    <div
-      ref={parentRef}
-      className="absolute inset-0 overflow-auto"
-    >
+    <div ref={parentRef} className="absolute inset-0 overflow-auto">
       <div
         className="relative w-full px-4 pb-4"
         style={{ height: virtualizer.getTotalSize() }}
@@ -163,7 +161,7 @@ export const RepoGrid = memo(function RepoGrid({
           return (
             <div
               key={virtualRow.key}
-              className="absolute left-0 top-0 grid w-full gap-4 px-4"
+              className="absolute top-0 left-0 grid w-full gap-4 pt-1 px-4"
               style={{
                 transform: `translateY(${virtualRow.start}px)`,
                 gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
