@@ -65,7 +65,7 @@ export function useStars(userId: string | undefined) {
 
   // Auto-sync only when there's no cached data (first login)
   useEffect(() => {
-    if (!userId || isLoading || hasSynced.current || hasCache.current) return
+    if (!userId || isLoading || hasSynced.current) return
     hasSynced.current = true
     startSync(userId)
     // eslint-disable-next-line react-hooks/exhaustive-deps

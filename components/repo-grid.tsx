@@ -5,6 +5,12 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import type { RepoWithLabels, SyncStatus } from "@/lib/types"
 import { RepoCard } from "@/components/repo-card"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import {
   Empty,
@@ -185,18 +191,25 @@ export const RepoGrid = memo(function RepoGrid({
 
 function SkeletonCard() {
   return (
-    <div className="flex flex-col gap-3 rounded-none bg-card p-3 ring-1 ring-foreground/10">
-      <div className="flex items-center gap-2">
-        <Skeleton className="size-6 rounded-full" />
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="ml-auto h-4 w-10" />
-      </div>
-      <Skeleton className="h-3 w-full" />
-      <Skeleton className="h-3 w-3/4" />
-      <div className="flex items-center gap-2">
+    <Card size="sm" style={{ height: ROW_HEIGHT }}>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-6 rounded-full" />
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="ml-auto h-4 w-10" />
+        </div>
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-3/4" />
+      </CardHeader>
+      <CardContent className="flex items-center gap-1.5">
+        <Skeleton className="h-5 w-16 rounded-full" />
+        <Skeleton className="h-5 w-20 rounded-full" />
+      </CardContent>
+      <CardFooter className="mt-auto gap-3 text-xs text-muted-foreground">
         <Skeleton className="size-2.5 rounded-full" />
         <Skeleton className="h-3 w-16" />
-      </div>
-    </div>
+        <Skeleton className="ml-auto h-3 w-14" />
+      </CardFooter>
+    </Card>
   )
 }
