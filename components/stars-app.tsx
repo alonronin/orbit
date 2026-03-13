@@ -69,14 +69,16 @@ export function StarsApp({ defaultOpen = true }: { defaultOpen?: boolean }) {
     }
   }, [profile, hasTaglines, isGeneratingTaglines, generateTags])
 
-  // Auto-categorize uncategorized repos after sync completes
-  const hasAutoCategorized = useRef(false)
+  // Auto-categorize uncategorized repos (after sync or on refresh from cache)
+  const hasTriggered = useRef(false)
   useEffect(() => {
-    if (hasAutoCategorized.current || isCategorizing) return
-    if (syncStatus.state !== "done" || repos.length === 0) return
+    if (hasTriggered.current || isCategorizing) return
+    if (repos.length === 0) return
+    // Wait for sync to finish if one is in progress
+    if (syncStatus.state === "syncing" || syncStatus.state === "background") return
     const uncategorized = repos.filter((r) => !r.aiLabels || r.aiLabels.length === 0)
     if (uncategorized.length === 0) return
-    hasAutoCategorized.current = true
+    hasTriggered.current = true
     if (userId) categorize(uncategorized, userId)
   }, [syncStatus.state, repos, userId, isCategorizing, categorize])
 
