@@ -10,6 +10,59 @@ interface CategorizeResult {
   aiSummary: string | null
 }
 
+const repoItemSchema = z.object({
+  id: z.number(),
+  labels: z.array(z.string()),
+  summary: z.string(),
+})
+
+const repoSchema = z.object({
+  repos: z.array(repoItemSchema),
+})
+
+type RepoItem = z.infer<typeof repoItemSchema>
+
+function salvageRepos(text: string): RepoItem[] {
+  // Try to extract valid repo items from potentially malformed JSON.
+  // Handles: duplicated JSON, wrong key names, truncated output.
+  const items: RepoItem[] = []
+  const seen = new Set<number>()
+
+  // Match all JSON array patterns in the text
+  const arrayRegex = /\[[\s\S]*?\]/g
+  let match
+  while ((match = arrayRegex.exec(text)) !== null) {
+    try {
+      const arr = JSON.parse(match[0])
+      if (!Array.isArray(arr)) continue
+      for (const item of arr) {
+        const result = repoItemSchema.safeParse(item)
+        if (result.success && !seen.has(result.data.id)) {
+          seen.add(result.data.id)
+          items.push(result.data)
+        }
+      }
+    } catch {
+      // Array might be truncated — try parsing individual objects within it
+      const objRegex = /\{[^{}]*\}/g
+      let objMatch
+      while ((objMatch = objRegex.exec(match[0])) !== null) {
+        try {
+          const obj = JSON.parse(objMatch[0])
+          const result = repoItemSchema.safeParse(obj)
+          if (result.success && !seen.has(result.data.id)) {
+            seen.add(result.data.id)
+            items.push(result.data)
+          }
+        } catch {
+          // skip malformed object
+        }
+      }
+    }
+  }
+  return items
+}
+
 export async function categorizeRepos(
   repos: RepoWithLabels[],
 ): Promise<CategorizeResult[]> {
@@ -26,26 +79,15 @@ export async function categorizeRepos(
     topics: r.topics.join(", "),
   }))
 
-  const { output } = await generateText({
-    model: model,
-    output: Output.object({
-      schema: z.object({
-        repos: z.array(
-          z.object({
-            id: z.number(),
-            labels: z
-              .array(z.string())
-              .describe("1-3 category labels from the predefined list"),
-            summary: z
-              .string()
-              .describe(
-                "One concise sentence describing what this repo does"
-              ),
-          })
-        ),
-      }),
-    }),
-    prompt: `Categorize these GitHub repositories. For each repo, assign 1-3 labels from the list below. Also write a one-sentence summary.
+  const emptyResults = repos.map((r) => ({
+    id: r.id,
+    aiLabels: [] as string[],
+    aiSummary: null,
+  }))
+
+  let output: z.infer<typeof repoSchema> | null = null
+
+  const prompt = `Categorize these GitHub repositories. For each repo, assign 1-3 labels from the list below. Also write a one-sentence summary.
 
 Categories:
 - Framework: Web/app frameworks (Next.js, Rails, Django)
@@ -67,16 +109,41 @@ Categories:
 A repo can match multiple categories (e.g. an AI-powered CLI tool = AI/ML + CLI + Tool).
 
 Repos:
-${JSON.stringify(repoDescriptions, null, 2)}`,
-  })
+${JSON.stringify(repoDescriptions, null, 2)}`
 
-  if (!output) {
-    return repos.map((r) => ({
-      id: r.id,
-      aiLabels: [],
-      aiSummary: null,
-    }))
+  try {
+    const result = await generateText({
+      model: model,
+      output: Output.object({ schema: repoSchema }),
+      prompt,
+    })
+
+    // Try structured output first, fall back to salvaging from raw text
+    try {
+      output = result.output
+    } catch {
+      if (result.text) {
+        const items = salvageRepos(result.text)
+        if (items.length > 0) output = { repos: items }
+      }
+    }
+  } catch (e: unknown) {
+    // Model sometimes outputs malformed JSON (duplicated, wrong keys, truncated).
+    // Salvage whatever valid repo items we can from the raw text.
+    const text = e && typeof e === "object" && "text" in e
+      ? (e as { text: string }).text
+      : undefined
+    if (text) {
+      const items = salvageRepos(text)
+      if (items.length > 0) output = { repos: items }
+    }
+    if (!output) {
+      console.error("Categorization failed, skipping batch:", e)
+      return emptyResults
+    }
   }
+
+  if (!output) return emptyResults
 
   return output.repos.map((r) => ({
     id: r.id,
