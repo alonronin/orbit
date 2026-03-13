@@ -64,7 +64,7 @@ npx auth secret
 
 **AI Gateway**
 
-The app uses the [Vercel AI SDK](https://sdk.vercel.ai/) with AI Gateway. The default model is `groq/qwen-3-32b`. Set `AI_GATEWAY_API_KEY` to your gateway key, and optionally change `MODEL` for a different provider.
+The app uses the [Vercel AI SDK](https://sdk.vercel.ai/) with AI Gateway. The default model is `groq/gpt-oss-20b`. Set `AI_GATEWAY_API_KEY` to your gateway key, and optionally change `MODEL` for a different provider.
 
 ## 📜 Available Scripts
 
