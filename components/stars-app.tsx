@@ -69,15 +69,15 @@ export function StarsApp({ defaultOpen = true }: { defaultOpen?: boolean }) {
     }
   }, [profile, hasTaglines, isGeneratingTaglines, generateTags])
 
-  // Auto-categorize after first sync (no existing labels)
+  // Auto-categorize uncategorized repos after sync completes
   const hasAutoCategorized = useRef(false)
   useEffect(() => {
     if (hasAutoCategorized.current || isCategorizing) return
     if (syncStatus.state !== "done" || repos.length === 0) return
-    const alreadyCategorized = repos.some((r) => r.aiLabels.length > 0)
-    if (alreadyCategorized) return
+    const uncategorized = repos.filter((r) => !r.aiLabels || r.aiLabels.length === 0)
+    if (uncategorized.length === 0) return
     hasAutoCategorized.current = true
-    if (userId) categorize(repos, userId)
+    if (userId) categorize(uncategorized, userId)
   }, [syncStatus.state, repos, userId, isCategorizing, categorize])
 
   const [activeLanguages, setActiveLanguages] = useState<Set<string>>(new Set())
