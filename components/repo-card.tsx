@@ -82,15 +82,15 @@ export const RepoCard = memo(function RepoCard({ repo, onClick, style, className
             </span>
           </div>
         </div>
-        {repo.description && (
+        {(repo.description ?? repo.aiSummary) && (
           <CardDescription className="line-clamp-2">
-            {repo.description}
+            {repo.description ?? repo.aiSummary}
           </CardDescription>
         )}
       </CardHeader>
 
       {(repo.topics.length > 0 || repo.aiLabels.length > 0) && (
-        <CardContent className="flex flex-nowrap items-center gap-1.5 overflow-hidden">
+        <CardContent className="mt-auto flex flex-nowrap items-center gap-1.5 overflow-hidden">
           {allTags(repo).visible.map((tag) => (
             <Badge
               key={`${tag.type}-${tag.text}`}

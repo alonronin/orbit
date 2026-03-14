@@ -87,7 +87,7 @@ export async function categorizeRepos(
 
   let output: z.infer<typeof repoSchema> | null = null
 
-  const prompt = `Categorize these GitHub repositories. For each repo, assign 1-3 labels from the list below. Also write a one-sentence summary.
+  const prompt = `Categorize these GitHub repositories. For each repo, assign 1-3 labels from the list below. For repos with no description, write a one-sentence description in the "summary" field. For repos that already have a description, set "summary" to an empty string.
 
 Categories:
 - Framework: Web/app frameworks (Next.js, Rails, Django)

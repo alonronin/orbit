@@ -59,19 +59,10 @@ export const RepoDetail = memo(function RepoDetail({ repo, onClose }: RepoDetail
 
         <ScrollArea className="max-h-[60vh]">
           <div className="flex flex-col gap-4">
-            {repo.description && (
+            {(repo.description ?? repo.aiSummary) && (
               <p className="text-xs leading-relaxed text-foreground">
-                {repo.description}
+                {repo.description ?? repo.aiSummary}
               </p>
-            )}
-
-            {repo.aiSummary && (
-              <div className="rounded-sm bg-muted/50 px-3 py-2">
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">AI Summary: </span>
-                  {repo.aiSummary}
-                </p>
-              </div>
             )}
 
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
