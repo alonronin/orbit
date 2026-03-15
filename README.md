@@ -16,12 +16,15 @@
 - **Smart filtering** — Filter by programming language or AI-generated label
 - **Offline-first** — Persists everything in IndexedDB for instant loads across sessions
 - **Streaming sync** — Fetches all your stars with real-time progress, resumable on refresh
+- **AI taglines** — Generates profile taglines based on your starred repos
+- **Dark mode** — Light/dark theme toggle
+- **Virtual scrolling** — Smooth performance with thousands of repos via TanStack Virtual
 
 ## ℹ️ Overview
 
 Orbit turns your GitHub stars from a forgotten bookmark graveyard into a searchable, organized library. Sign in with GitHub, sync your stars, and let AI sort through hundreds (or thousands) of repos so you can actually find what you need.
 
-Built with Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui, Vercel AI SDK, TanStack Query, TanStack Virtual, Fuse.js, and IndexedDB via idb.
+Built with Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui, Base UI, Vercel AI SDK, TanStack Query, TanStack Virtual, Fuse.js, and IndexedDB via idb.
 
 ## 🚀 Usage
 
