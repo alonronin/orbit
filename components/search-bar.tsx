@@ -33,7 +33,7 @@ export function SearchBar({ query, onQueryChange }: SearchBarProps) {
   }, [onQueryChange])
 
   return (
-    <InputGroup className="max-w-sm">
+    <InputGroup className="w-full max-w-sm">
       <InputGroupAddon align="inline-start">
         <SearchIcon data-icon="inline-start" className="text-muted-foreground" />
       </InputGroupAddon>

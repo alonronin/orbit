@@ -36,6 +36,7 @@ import {
   WandSparklesIcon,
 } from "lucide-react"
 import { SearchBar } from "@/components/search-bar"
+import { useIsMobile } from "@/hooks/use-mobile"
 import type { SyncStatus } from "@/lib/types"
 
 type ConfirmAction = "sync" | "categorize" | "signout" | "clear" | null
@@ -107,6 +108,7 @@ export function Header({
   const { resolvedTheme, setTheme } = useTheme()
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
   const [mounted, setMounted] = useState(false)
+  const isMobile = useIsMobile()
   useEffect(() => setMounted(true), [])
 
   function handleSync() {
@@ -187,79 +189,83 @@ export function Header({
               </Badge>
             )}
 
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={handleSync}
-                    disabled={isSyncing}
-                  />
-                }
-              >
-                {isSyncing ? <Spinner /> : <RefreshCwIcon />}
-                <span className="sr-only">Sync stars</span>
-              </TooltipTrigger>
-              <TooltipContent>Sync stars</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={handleCategorize}
-                    disabled={isCategorizing || !hasData}
-                  />
-                }
-              >
-                <SparklesIcon />
-                <span className="sr-only">Categorize with AI</span>
-              </TooltipTrigger>
-              <TooltipContent>Categorize with AI</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      window.open(
-                        "https://github.com/alonronin/orbit",
-                        "_blank",
-                        "noopener,noreferrer"
-                      )
+            {!isMobile && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                      />
                     }
-                  />
-                }
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-                <span className="sr-only">View on GitHub</span>
-              </TooltipTrigger>
-              <TooltipContent>View on GitHub</TooltipContent>
-            </Tooltip>
+                  >
+                    {isSyncing ? <Spinner /> : <RefreshCwIcon />}
+                    <span className="sr-only">Sync stars</span>
+                  </TooltipTrigger>
+                  <TooltipContent>Sync stars</TooltipContent>
+                </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={handleCategorize}
+                        disabled={isCategorizing || !hasData}
+                      />
                     }
-                  />
-                }
-              >
-                {mounted && resolvedTheme === "dark" ? <SunIcon /> : <MoonIcon />}
-                <span className="sr-only">Toggle theme</span>
-              </TooltipTrigger>
-              <TooltipContent>Toggle theme (d)</TooltipContent>
-            </Tooltip>
+                  >
+                    <SparklesIcon />
+                    <span className="sr-only">Categorize with AI</span>
+                  </TooltipTrigger>
+                  <TooltipContent>Categorize with AI</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() =>
+                          window.open(
+                            "https://github.com/alonronin/orbit",
+                            "_blank",
+                            "noopener,noreferrer"
+                          )
+                        }
+                      />
+                    }
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    <span className="sr-only">View on GitHub</span>
+                  </TooltipTrigger>
+                  <TooltipContent>View on GitHub</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() =>
+                          setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                        }
+                      />
+                    }
+                  >
+                    {mounted && resolvedTheme === "dark" ? <SunIcon /> : <MoonIcon />}
+                    <span className="sr-only">Toggle theme</span>
+                  </TooltipTrigger>
+                  <TooltipContent>Toggle theme (d)</TooltipContent>
+                </Tooltip>
+              </>
+            )}
 
             {session?.user && (
               <DropdownMenu>
@@ -288,6 +294,31 @@ export function Header({
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
+                  {isMobile && (
+                    <>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={handleSync} disabled={isSyncing}>
+                          <RefreshCwIcon data-icon="inline-start" />
+                          {isSyncing ? "Syncing..." : "Sync stars"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleCategorize} disabled={isCategorizing || !hasData}>
+                          <SparklesIcon data-icon="inline-start" />
+                          Categorize with AI
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => window.open("https://github.com/alonronin/orbit", "_blank", "noopener,noreferrer")}
+                        >
+                          <svg viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                          View on GitHub
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+                          {mounted && resolvedTheme === "dark" ? <SunIcon data-icon="inline-start" /> : <MoonIcon data-icon="inline-start" />}
+                          {mounted && resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       onClick={onRegenerateTaglines}

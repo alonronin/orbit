@@ -6,7 +6,7 @@ import { LogInIcon } from "lucide-react"
 
 export function SignInPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-svh items-center justify-center">
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">
