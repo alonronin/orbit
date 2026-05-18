@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { signOut, useSession } from "next-auth/react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -38,6 +38,9 @@ import {
 import { SearchBar } from "@/components/search-bar"
 import { useIsMobile } from "@/hooks/use-mobile"
 import type { SyncStatus } from "@/lib/types"
+
+// No-op subscribe for the useSyncExternalStore-based hydration check below.
+const subscribe = () => () => {}
 
 type ConfirmAction = "sync" | "categorize" | "signout" | "clear" | null
 
@@ -107,9 +110,10 @@ export function Header({
   const { data: session } = useSession()
   const { resolvedTheme, setTheme } = useTheme()
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
-  const [mounted, setMounted] = useState(false)
   const isMobile = useIsMobile()
-  useEffect(() => setMounted(true), [])
+  // false on the server + first client render, true after hydration — defers
+  // theme-dependent icons (next-themes) to the client to avoid a mismatch.
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false)
 
   function handleSync() {
     if (!hasData) {

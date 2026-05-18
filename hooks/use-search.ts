@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useDeferredValue, useMemo, useRef, useState } from "react"
+import { useEffect, useDeferredValue, useMemo, useState } from "react"
 import Fuse from "fuse.js"
 import type { RepoWithLabels } from "@/lib/types"
 
@@ -67,19 +67,12 @@ export function useSearch(repos: RepoWithLabels[]) {
   }, [query])
   const deferredQuery = useDeferredValue(debouncedQuery)
 
-  // Only rebuild Fuse index + blob cache when the number of repos changes,
-  // not on every array reference change (e.g. during streaming sync)
-  const reposCountRef = useRef(0)
-  const fuseRef = useRef<Fuse<RepoWithLabels>>(new Fuse([], fuseOptions))
-  const reposRef = useRef(repos)
-  const blobCacheRef = useRef<Map<string, string[]>>(new Map())
-
-  if (repos.length !== reposCountRef.current) {
-    reposCountRef.current = repos.length
-    fuseRef.current = new Fuse(repos, fuseOptions)
-    reposRef.current = repos
-    // Pre-compute normalized word arrays per repo for prefix matching
-    const cache = new Map<string, string[]>()
+  // Build the Fuse index + prefix-match blob cache, keyed on repos.length so
+  // it rebuilds only when repos are added or removed — not on every array
+  // reference change (e.g. labels streaming in during categorization).
+  const index = useMemo(() => {
+    const fuse = new Fuse(repos, fuseOptions)
+    const blobCache = new Map<string, string[]>()
     for (const repo of repos) {
       const blob = [
         norm(repo.name), norm(repo.fullName),
@@ -88,23 +81,25 @@ export function useSearch(repos: RepoWithLabels[]) {
         ...(repo.aiLabels ?? []).map(norm),
         norm(repo.aiSummary ?? ""),
       ].join(" ")
-      cache.set(repo.fullName, blob.split(/\s+/))
+      blobCache.set(repo.fullName, blob.split(/\s+/))
     }
-    blobCacheRef.current = cache
-  }
+    return { fuse, blobCache, repos }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally keyed on count only (see comment above)
+  }, [repos.length])
 
   const results = useMemo(() => {
-    if (!deferredQuery.trim()) return reposRef.current
+    const { fuse, blobCache, repos: indexedRepos } = index
+    if (!deferredQuery.trim()) return indexedRepos
     const q = deferredQuery.trim().toLowerCase()
-    const raw = fuseRef.current.search(deferredQuery)
+    const raw = fuse.search(deferredQuery)
 
     // Supplement Fuse results with prefix-based matches.
     const queryWords = norm(q).split(/\s+/).filter(Boolean)
     if (queryWords.length > 0) {
       const seen = new Set(raw.map((r) => r.item.fullName))
-      for (const repo of reposRef.current) {
+      for (const repo of indexedRepos) {
         if (seen.has(repo.fullName)) continue
-        const words = blobCacheRef.current.get(repo.fullName)
+        const words = blobCache.get(repo.fullName)
         if (words && queryWords.every((qw) => words.some((w) => w.startsWith(qw)))) {
           raw.push({ item: repo, score: 0.5, refIndex: 0 })
         }
@@ -128,7 +123,7 @@ export function useSearch(repos: RepoWithLabels[]) {
       return scoreDiff
     })
     return raw.map((r) => r.item)
-  }, [deferredQuery])
+  }, [deferredQuery, index])
 
   // When repos change but no search query, return the latest repos
   if (!deferredQuery.trim()) return { query, setQuery, results: repos }
