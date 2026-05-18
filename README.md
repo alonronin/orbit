@@ -85,3 +85,7 @@ The app uses the [Vercel AI SDK](https://sdk.vercel.ai/) with AI Gateway. The de
 Found a bug or have an idea? [Open an issue](https://github.com/oneqmethod/github-stars/issues)!
 
 Contributions are welcome — fork the repo, create a feature branch, and open a pull request.
+
+## ⚖️ License
+
+Released into the public domain under [the Unlicense](LICENSE) — no rights reserved. Do whatever you want with it.
